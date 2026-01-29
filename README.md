@@ -1,6 +1,6 @@
 # Outlook Email Backup Tool
 
-A Python GUI application for backing up Microsoft Outlook emails to local drive as .eml/.msg files with advanced filtering options.
+A Python GUI application for backing up Microsoft Outlook emails to local drive as .msg files (Outlook native format) with advanced filtering and flexible folder organization options.
 
 ## Features
 
@@ -12,8 +12,11 @@ A Python GUI application for backing up Microsoft Outlook emails to local drive 
 
 - **Flexible Output Settings**
   - Choose backup location
-  - Include/exclude attachments
+  - Include/exclude attachments (Note: .msg format embeds attachments automatically)
   - Organize by date (YYYY/MM folder structure)
+  - Organize by sender email (when sender filter is enabled)
+  - Organize by subject (when subject filter is enabled)
+  - Priority-based organization: Sender > Subject > Date
   - Automatic filename collision handling
 
 - **User-Friendly Interface**
@@ -78,8 +81,11 @@ Or double-click `main.py` if Python is associated with .py files.
 
 2. **Configure Output Settings**
    - Click "Browse..." to select backup location
-   - Check "Include Attachments" to save email attachments
+   - Check "Include Attachments" to save email attachments (Note: .msg format embeds attachments by default)
    - Check "Organize by Date" to create YYYY/MM folder structure
+   - **Note**: When Sender filter is enabled, emails will be organized by sender email address
+   - **Note**: When Subject filter is enabled, emails will be organized by subject name
+   - Priority: Sender organization > Subject organization > Date organization
 
 3. **Preview Count** (Recommended)
    - Click "Preview Count" to see how many emails match your filters
@@ -99,12 +105,10 @@ Or double-click `main.py` if Python is associated with .py files.
 
 ### Output File Structure
 
-**Without "Organize by Date":**
+**Basic (No organization):**
 ```
 BackupFolder/
 ├── email_20260129_103045_Meeting_reminder.msg
-├── email_20260129_103045_Meeting_reminder_attachments/
-│   └── document.pdf
 ├── email_20260128_150230_Project_update.msg
 └── ...
 ```
@@ -123,16 +127,59 @@ BackupFolder/
         └── email_20251231_170000_Happy_New_Year.msg
 ```
 
+**With Sender Filter Enabled (Organize by Sender):**
+```
+BackupFolder/
+├── john.doe@company.com/
+│   ├── email_20260129_103045_Meeting_reminder.msg
+│   └── email_20260128_150230_Project_update.msg
+├── jane.smith@company.com/
+│   └── email_20260127_093015_Status_report.msg
+└── team@company.com/
+    └── email_20260126_140000_Weekly_update.msg
+```
+
+**With Sender Filter + Date Organization:**
+```
+BackupFolder/
+├── john.doe@company.com/
+│   └── 2026/
+│       └── 01/
+│           ├── email_20260129_103045_Meeting_reminder.msg
+│           └── email_20260128_150230_Project_update.msg
+└── jane.smith@company.com/
+    └── 2026/
+        └── 01/
+            └── email_20260127_093015_Status_report.msg
+```
+
+**With Subject Filter Enabled (Organize by Subject):**
+```
+BackupFolder/
+├── Project_Alpha_Updates/
+│   ├── email_20260129_103045_Re_Project_Alpha_.msg
+│   └── email_20260128_150230_Fwd_Project_Alpha.msg
+├── Weekly_Report/
+│   └── email_20260127_093015_Weekly_Report.msg
+└── No_Subject/
+    └── email_20260126_140000_no_subject.msg
+```
+
+**Note:** .MSG format automatically embeds attachments within the email file, preserving all Outlook metadata including categories, flags, importance, read receipts, and RTF formatting.
+
 ### Filename Format
 
 Emails are saved with the following naming convention:
 ```
-email_YYYYMMDD_HHMMSS_[first20chars_of_subject].[msg/eml]
+email_YYYYMMDD_HHMMSS_[first20chars_of_subject].msg
 ```
 
 Examples:
 - `email_20260129_103045_Meeting_reminder.msg`
 - `email_20260128_150230_Project_update.msg`
+- `email_20260127_143000_no_subject.msg`
+
+**Note:** .MSG is Microsoft Outlook's native message format that preserves all email properties and embedded attachments.
 
 ### Configuration File
 
@@ -163,12 +210,15 @@ The application automatically saves your last backup location in `config.json`. 
 - Check the status log for progress updates
 - If truly frozen, close and restart the application
 
-### Emails saved as .msg instead of .eml
+### Why .MSG format instead of .EML?
 
-**Explanation:**
-- Outlook COM API doesn't directly support .eml export in all versions
-- .msg format is Microsoft's native format and fully preserves email content
-- Both formats can be opened in Outlook and most email clients
+**Benefits of .MSG format:**
+- Microsoft Outlook's native format
+- Preserves ALL email metadata: categories, flags, importance, read receipts, voting buttons, etc.
+- Automatically embeds attachments within the file
+- Maintains RTF and HTML formatting perfectly
+- Can be opened directly in Outlook with full functionality
+- More reliable than .EML for Outlook-specific features
 
 ### Some emails are missing
 
@@ -204,16 +254,20 @@ outlook_backup_tool/
 1. **Connection**: Uses `win32com.client` to connect to the local running Outlook application
 2. **Retrieval**: Accesses the specified mail folder and retrieves email items
 3. **Filtering**: Applies user-specified filters (date, sender, subject)
-4. **Export**: Saves each email using Outlook's SaveAs method in .msg format
-5. **Attachments**: If enabled, saves attachments to separate subfolders
-6. **Threading**: Backup runs in background thread to keep GUI responsive
+4. **Organization**: Determines folder structure based on priority logic:
+   - Priority 1: Sender-based organization (if sender filter enabled)
+   - Priority 2: Subject-based organization (if subject filter enabled)
+   - Priority 3: Date-based organization (if organize by date enabled)
+5. **Export**: Saves each email using Outlook's SaveAs method in .msg format (olMSG = 3)
+6. **Sender Extraction**: Handles both SMTP and Exchange email addresses properly
+7. **Threading**: Backup runs in background thread to keep GUI responsive
 
 ### Limitations
 
 - Windows-only (requires Outlook COM interface)
 - Requires Outlook to be installed and configured
 - Large mailboxes may take significant time to backup
-- .msg format used instead of .eml (Outlook API limitation)
+- .msg files are Windows/Outlook-specific (though other email clients may support them)
 
 ## Security & Privacy
 
@@ -243,6 +297,16 @@ For issues, questions, or feature requests:
 This tool is provided as-is for personal and business use.
 
 ## Version History
+
+- **v1.1 (refinement-v1)** (2026-01-29)
+  - **BREAKING CHANGE**: Switched from .EML to .MSG format (Outlook native format)
+  - Added sender-based folder organization (when sender filter is enabled)
+  - Added subject-based folder organization (when subject filter is enabled)
+  - Implemented priority-based organization logic (Sender > Subject > Date)
+  - Fixed sender filter bug for Exchange emails (now properly retrieves SMTP addresses)
+  - Added diagnose_sender.py utility for troubleshooting
+  - Improved folder name sanitization
+  - .MSG format now preserves ALL Outlook metadata and embeds attachments automatically
 
 - **v1.0** (2026-01-29)
   - Initial release
