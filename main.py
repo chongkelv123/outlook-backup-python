@@ -478,7 +478,9 @@ class OutlookBackupApp:
             exporter = EmailExporter(
                 self.backup_location,
                 organize_by_date=self.organize_by_date_var.get(),
-                include_attachments=self.include_attachments_var.get()
+                include_attachments=self.include_attachments_var.get(),
+                sender_filter_enabled=self.sender_filter_var.get(),
+                subject_filter_enabled=self.subject_filter_var.get()
             )
 
             # Export emails

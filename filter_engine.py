@@ -107,11 +107,25 @@ class FilterEngine:
             try:
                 # Get sender email address
                 email_sender = ""
-                if hasattr(email, 'SenderEmailAddress'):
-                    email_sender = email.SenderEmailAddress
-                elif hasattr(email, 'Sender') and email.Sender:
-                    if hasattr(email.Sender, 'Address'):
-                        email_sender = email.Sender.Address
+
+                # Check if it's an Exchange email type
+                if hasattr(email, 'SenderEmailType') and email.SenderEmailType == "EX":
+                    # For Exchange emails, get SMTP address from Exchange User
+                    try:
+                        if hasattr(email, 'Sender') and email.Sender:
+                            exchange_user = email.Sender.GetExchangeUser()
+                            if exchange_user and hasattr(exchange_user, 'PrimarySmtpAddress'):
+                                email_sender = exchange_user.PrimarySmtpAddress
+                    except:
+                        pass
+
+                # If still empty, try standard properties
+                if not email_sender:
+                    if hasattr(email, 'SenderEmailAddress'):
+                        email_sender = email.SenderEmailAddress
+                    elif hasattr(email, 'Sender') and email.Sender:
+                        if hasattr(email.Sender, 'Address'):
+                            email_sender = email.Sender.Address
 
                 # Also check SenderName
                 sender_name = ""
