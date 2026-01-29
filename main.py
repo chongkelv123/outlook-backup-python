@@ -52,9 +52,14 @@ class OutlookBackupApp:
         main_frame.columnconfigure(0, weight=1)
 
         # Title
-        title_label = ttk.Label(main_frame, text="Outlook Email Backup Tool \n© Kelvin Chong 2026",
-                                font=('Arial', 13, 'bold'))
+        title_label = ttk.Label(main_frame, text="Outlook Email Backup Tool",
+                                font=('Arial', 16, 'bold'))
         title_label.grid(row=0, column=0, pady=(0, 5))
+
+        # copyright
+        copyright_label = ttk.Label(main_frame, text="© Kelvin Chong 2026",
+                                      font=('Arial', 10))
+        copyright_label.grid(row=0, column=2, pady=(0, 5), sticky=tk.E)
 
         # Compatibility Notice
         compat_label = ttk.Label(main_frame,
