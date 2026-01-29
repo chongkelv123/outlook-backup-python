@@ -29,8 +29,33 @@ A Python GUI application for backing up Microsoft Outlook emails to local drive 
 
 - Windows OS (required for Outlook COM automation)
 - Python 3.7 or higher
-- Microsoft Outlook installed and configured
+- **Microsoft Outlook Classic (Desktop Version) - REQUIRED**
 - Active Outlook profile (must be logged in)
+
+### ⚠️ Important: Classic Outlook Only
+
+**This tool ONLY works with Classic Outlook (Desktop version with COM automation).**
+
+**NOT Compatible with:**
+- ❌ New Outlook (web-based version introduced in 2023)
+- ❌ Outlook Web App (OWA)
+- ❌ Outlook.com web interface
+
+**Why Classic Outlook Only?**
+The new Outlook is a web-based application that doesn't expose COM/MAPI interfaces required for automation. Classic Outlook provides full COM automation support, allowing this tool to access and export your emails locally.
+
+### How to Switch to Classic Outlook
+
+If you're using the new Outlook, you can easily switch back:
+
+1. **Open Outlook**
+2. **Look for the toggle switch** in the top-right corner of the window
+3. **Find the option labeled:** "Try the new Outlook" or similar
+4. **Turn OFF the toggle** (slide it to the left/off position)
+5. **Outlook will restart** in Classic mode
+6. **Run this backup tool** after Classic Outlook has fully loaded
+
+**Note:** Classic Outlook is fully supported by Microsoft and provides all features plus COM automation capabilities.
 
 ## Installation
 
@@ -187,13 +212,23 @@ The application automatically saves your last backup location in `config.json`. 
 
 ## Troubleshooting
 
-### "Failed to connect to Outlook"
+### "Failed to connect to Outlook" or "CLASSIC Outlook Required"
+
+**Most Common Cause: You're using new Outlook**
 
 **Solution:**
-- Make sure Outlook is installed
+1. Check if you're using the new Outlook (web-based version)
+2. Look for a toggle switch in the top-right corner of Outlook
+3. Turn OFF "Try the new Outlook"
+4. Outlook will restart in Classic mode
+5. Run this backup tool again
+
+**Other Solutions:**
+- Make sure Classic Outlook is installed and running
 - Open Outlook at least once to set up your profile
 - Ensure you're logged into your Outlook account
-- Try closing and reopening Outlook
+- Try closing and reopening Classic Outlook
+- Run this application as Administrator
 
 ### "Permission denied" or "Access denied"
 
@@ -233,6 +268,26 @@ The application automatically saves your last backup location in `config.json`. 
 - Some emails may have corrupted or missing metadata
 - These warnings are logged but don't stop the backup
 - The email may still be exported if possible
+
+### How to Tell if You're Using New Outlook vs Classic Outlook
+
+**New Outlook (NOT Compatible):**
+- Modern, colorful interface similar to web interface
+- Toggle switch in top-right corner that says "Try the new Outlook"
+- Simplified ribbon with icons
+- Process name: `olk.exe` or `HxOutlook.exe`
+
+**Classic Outlook (Compatible):**
+- Traditional Microsoft Office interface
+- Full ribbon with File, Home, Send/Receive tabs
+- May have a toggle that says "Try the new Outlook" (turn it OFF)
+- Process name: `OUTLOOK.EXE`
+
+**Quick Check:**
+- Open Task Manager (Ctrl+Shift+Esc)
+- Look for processes:
+  - `OUTLOOK.EXE` = Classic Outlook ✓
+  - `olk.exe` or `HxOutlook.exe` = New Outlook ✗
 
 ## Technical Details
 
@@ -307,6 +362,11 @@ This tool is provided as-is for personal and business use.
   - Added diagnose_sender.py utility for troubleshooting
   - Improved folder name sanitization
   - .MSG format now preserves ALL Outlook metadata and embeds attachments automatically
+  - **Added Classic Outlook detection and warnings**
+  - Detects new Outlook (not supported) and shows helpful migration instructions
+  - Added compatibility notice in GUI
+  - Enhanced error messages to guide users to switch to Classic Outlook
+  - Added comprehensive compatibility documentation in README
 
 - **v1.0** (2026-01-29)
   - Initial release

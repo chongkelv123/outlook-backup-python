@@ -54,7 +54,14 @@ class OutlookBackupApp:
         # Title
         title_label = ttk.Label(main_frame, text="Outlook Email Backup Tool \n© Kelvin Chong 2026",
                                 font=('Arial', 13, 'bold'))
-        title_label.grid(row=0, column=0, pady=(0, 20))
+        title_label.grid(row=0, column=0, pady=(0, 5))
+
+        # Compatibility Notice
+        compat_label = ttk.Label(main_frame,
+                                 text="⚠️ Requires Classic Outlook (Desktop Version) - New Outlook Not Supported",
+                                 font=('Arial', 8),
+                                 foreground='#d35400')
+        compat_label.grid(row=1, column=0, pady=(0, 15))
 
         # Filter Options Section
         self.create_filter_section(main_frame)
@@ -71,7 +78,7 @@ class OutlookBackupApp:
     def create_filter_section(self, parent):
         """Create filter options section"""
         filter_frame = ttk.LabelFrame(parent, text="Filter Options", padding="10")
-        filter_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        filter_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
         filter_frame.columnconfigure(1, weight=1)
 
         row = 0
@@ -154,7 +161,7 @@ class OutlookBackupApp:
     def create_output_section(self, parent):
         """Create output settings section"""
         output_frame = ttk.LabelFrame(parent, text="Output Settings", padding="10")
-        output_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        output_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
         output_frame.columnconfigure(1, weight=1)
 
         # Backup Location
@@ -189,7 +196,7 @@ class OutlookBackupApp:
     def create_action_buttons(self, parent):
         """Create action buttons"""
         button_frame = ttk.Frame(parent)
-        button_frame.grid(row=3, column=0, pady=10)
+        button_frame.grid(row=4, column=0, pady=10)
 
         self.preview_btn = ttk.Button(button_frame, text="Preview Count",
                                        command=self.preview_count, width=15)
@@ -206,8 +213,8 @@ class OutlookBackupApp:
     def create_progress_section(self, parent):
         """Create progress display section"""
         progress_frame = ttk.LabelFrame(parent, text="Progress", padding="10")
-        progress_frame.grid(row=4, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
-        parent.rowconfigure(4, weight=1)
+        progress_frame.grid(row=5, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
+        parent.rowconfigure(5, weight=1)
         progress_frame.columnconfigure(0, weight=1)
         progress_frame.rowconfigure(1, weight=1)
 
@@ -229,19 +236,58 @@ class OutlookBackupApp:
 
     def initialize_outlook(self):
         """Initialize connection to Outlook"""
+        # Check Outlook version compatibility first
+        version_info = self.outlook.get_outlook_version_info()
+
+        # Show warning if new Outlook is detected
+        if version_info['warning_message']:
+            self.log_status("⚠️ Compatibility Warning")
+            self.log_status(version_info['warning_message'])
+
+            # Show dialog with warning
+            result = messagebox.showwarning(
+                "Classic Outlook Required",
+                version_info['warning_message'] + "\n\n"
+                "This application will attempt to connect anyway.\n"
+                "If connection fails, please switch to Classic Outlook.",
+                icon='warning'
+            )
+
         try:
             self.log_status("Connecting to Outlook...")
             self.outlook.connect()
-            self.log_status("Connected to Outlook successfully!")
+            self.log_status("✓ Connected to Classic Outlook successfully!")
 
             # Load folder list
             self.load_folder_list()
 
         except Exception as e:
-            self.log_status(f"Error connecting to Outlook: {str(e)}")
-            messagebox.showerror("Connection Error",
-                                 f"Failed to connect to Outlook:\n{str(e)}\n\n"
-                                 "Please make sure Outlook is running.")
+            error_msg = str(e)
+            self.log_status(f"✗ Error connecting to Outlook: {error_msg}")
+
+            # Show detailed error dialog
+            if "new Outlook" in error_msg or "CLASSIC" in error_msg:
+                # Show special dialog for new Outlook issue
+                messagebox.showerror(
+                    "Classic Outlook Required",
+                    f"{error_msg}\n\n"
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                    "HOW TO SWITCH TO CLASSIC OUTLOOK:\n\n"
+                    "1. Open Outlook\n"
+                    "2. Look for a toggle switch labeled\n"
+                    "   'Try the new Outlook' in the top-right\n"
+                    "3. Turn OFF the toggle\n"
+                    "4. Outlook will restart in Classic mode\n"
+                    "5. Run this tool again\n\n"
+                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                )
+            else:
+                # Show standard error dialog
+                messagebox.showerror(
+                    "Connection Error",
+                    f"Failed to connect to Outlook:\n\n{error_msg}\n\n"
+                    "Please make sure Classic Outlook is running."
+                )
 
     def load_folder_list(self):
         """Load list of Outlook folders"""

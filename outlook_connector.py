@@ -21,6 +21,9 @@ class OutlookConnector:
         """
         Connect to the local Outlook application with retry logic
 
+        NOTE: This tool requires CLASSIC Outlook (Desktop version with COM support).
+        The new Outlook (web-based) is NOT supported.
+
         Args:
             retry_count: Number of connection attempts
             wait_seconds: Seconds to wait between retries
@@ -35,8 +38,11 @@ class OutlookConnector:
                 if not self._is_outlook_process_running():
                     raise ConnectionError(
                         "Outlook is not running.\n\n"
-                        "Please start Microsoft Outlook and try again.\n"
-                        "Make sure Outlook is fully loaded before running the backup tool."
+                        "IMPORTANT: This tool requires CLASSIC Outlook.\n"
+                        "The new Outlook (web-based version) is NOT supported.\n\n"
+                        "Please start Classic Microsoft Outlook and try again.\n"
+                        "If you're using new Outlook, switch to Classic Outlook using\n"
+                        "the toggle switch in the top-right corner of Outlook."
                     )
 
                 # Try different connection methods
@@ -56,7 +62,14 @@ class OutlookConnector:
                     test_folder = self.namespace.GetDefaultFolder(6)  # Inbox
                     return True
                 except:
-                    raise ConnectionError("Connected to Outlook but cannot access folders")
+                    raise ConnectionError(
+                        "Connected to Outlook but cannot access folders.\n\n"
+                        "This usually means:\n"
+                        "1. You're using the new Outlook (not supported)\n"
+                        "2. Outlook profile is not properly configured\n\n"
+                        "SOLUTION: Switch to Classic Outlook using the toggle\n"
+                        "switch in the top-right corner of Outlook."
+                    )
 
             except pywintypes.com_error as e:
                 error_code = e.args[0] if e.args else 0
@@ -65,11 +78,14 @@ class OutlookConnector:
                 if error_code == -2146959355:  # 0x80080005 - Server execution failed
                     last_error = ConnectionError(
                         "Outlook connection failed (Server execution failed).\n\n"
+                        "IMPORTANT: This tool requires CLASSIC Outlook.\n"
+                        "The new Outlook (web-based) does NOT support COM automation.\n\n"
                         "Solutions:\n"
-                        "1. Make sure Outlook is running and fully loaded\n"
-                        "2. Try running this application as Administrator\n"
-                        "3. Close and restart Outlook, then try again\n"
-                        "4. Check if Outlook has a profile configured"
+                        "1. Switch to Classic Outlook using the toggle in top-right corner\n"
+                        "2. Make sure Classic Outlook is running and fully loaded\n"
+                        "3. Try running this application as Administrator\n"
+                        "4. Close and restart Classic Outlook, then try again\n"
+                        "5. Check if Outlook has a profile configured"
                     )
                 elif error_code == -2147221005:  # 0x800401F3 - Invalid class string
                     last_error = ConnectionError(
@@ -226,3 +242,72 @@ class OutlookConnector:
     def is_outlook_running(self) -> bool:
         """Check if Outlook application is running"""
         return self._is_outlook_process_running()
+
+    def is_new_outlook_running(self) -> bool:
+        """
+        Check if new Outlook (web-based version) is running
+        Returns True if new Outlook process is detected
+        """
+        try:
+            import subprocess
+            # Check for new Outlook process (olk.exe or HxOutlook.exe)
+            result = subprocess.run(
+                ['tasklist', '/FI', 'IMAGENAME eq olk.exe'],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            if 'olk.exe' in result.stdout:
+                return True
+
+            # Also check for HxOutlook.exe (another new Outlook process name)
+            result = subprocess.run(
+                ['tasklist', '/FI', 'IMAGENAME eq HxOutlook.exe'],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            return 'HxOutlook.exe' in result.stdout
+        except:
+            return False
+
+    def get_outlook_version_info(self) -> dict:
+        """
+        Get information about which Outlook version is running
+        Returns dict with version info and compatibility status
+        """
+        classic_running = self._is_outlook_process_running()
+        new_running = self.is_new_outlook_running()
+
+        return {
+            'classic_outlook_running': classic_running,
+            'new_outlook_running': new_running,
+            'is_compatible': classic_running,
+            'warning_message': self._get_compatibility_warning(classic_running, new_running)
+        }
+
+    def _get_compatibility_warning(self, classic_running: bool, new_running: bool) -> str:
+        """Generate appropriate warning message based on detected Outlook versions"""
+        if new_running and not classic_running:
+            return (
+                "⚠️ NEW OUTLOOK DETECTED\n\n"
+                "You are running the new Outlook (web-based version).\n"
+                "This tool requires Classic Outlook with COM automation support.\n\n"
+                "HOW TO SWITCH:\n"
+                "1. Open new Outlook\n"
+                "2. Look for the toggle switch in the top-right corner\n"
+                "3. Click 'Try the new Outlook' to turn it OFF\n"
+                "4. Outlook will restart in Classic mode\n"
+                "5. Run this backup tool again\n\n"
+                "Classic Outlook is fully supported by Microsoft and\n"
+                "provides full COM automation capabilities."
+            )
+        elif not classic_running and not new_running:
+            return (
+                "⚠️ OUTLOOK NOT DETECTED\n\n"
+                "Please start Classic Microsoft Outlook.\n\n"
+                "IMPORTANT: This tool requires Classic Outlook.\n"
+                "The new Outlook (web-based) is NOT supported."
+            )
+        else:
+            return ""
