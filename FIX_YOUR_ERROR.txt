@@ -1,0 +1,226 @@
+================================================================================
+  FIX FOR ERROR: "Server execution failed (-2146959355)"
+================================================================================
+
+You are seeing this error:
+"Error connecting to Outlook: Failed to connect to Outlook:
+ (-2146959355, 'Server execution failed', None, None)"
+
+This is the #1 most common Outlook COM error. Here's how to fix it:
+
+
+SOLUTION #1 - START OUTLOOK FIRST (Try this first!)
+================================================================================
+This fixes 80% of cases!
+
+1. CLOSE the backup tool completely (close the window)
+
+2. OPEN Microsoft Outlook manually
+   - Click Start menu
+   - Find and click "Outlook"
+   - OR double-click the Outlook icon on your desktop
+
+3. WAIT until Outlook is fully loaded
+   - You should see your inbox with emails
+   - Wait for any synchronization to complete
+   - Don't close Outlook!
+
+4. NOW run the backup tool again
+   - Double-click "run_backup_tool.bat"
+   - OR run "python main.py"
+
+5. The connection should now work!
+
+
+SOLUTION #2 - RUN AS ADMINISTRATOR (If #1 didn't work)
+================================================================================
+
+1. Find the file "run_backup_tool.bat"
+
+2. RIGHT-CLICK on it
+
+3. Select "Run as administrator"
+
+4. Click "Yes" when Windows asks for permission
+
+5. The tool should now connect to Outlook
+
+
+SOLUTION #3 - REGISTER OUTLOOK COM LIBRARY (If #1 and #2 didn't work)
+================================================================================
+
+1. OPEN Command Prompt as Administrator:
+   - Click Start menu
+   - Type "cmd"
+   - RIGHT-CLICK on "Command Prompt"
+   - Select "Run as administrator"
+
+2. TYPE this command and press Enter:
+
+   python -m win32com.client.makepy Outlook
+
+3. WAIT for it to complete (takes about 30 seconds)
+
+4. CLOSE the Command Prompt
+
+5. START Outlook manually
+
+6. RUN the backup tool again
+
+
+SOLUTION #4 - CHECK OUTLOOK PROFILE (If #1, #2, #3 didn't work)
+================================================================================
+
+1. OPEN Outlook manually
+
+2. Click on "File" (top-left corner)
+
+3. Click "Account Settings" → "Account Settings"
+
+4. You should see at least ONE email account in the list
+   - If you see no accounts, add one:
+     - Click "New"
+     - Follow the wizard to add your email
+
+5. CLOSE the Account Settings window
+
+6. TRY sending yourself a test email to verify it works
+
+7. NOW try the backup tool again
+
+
+QUICK TEST - Use our connection tester!
+================================================================================
+
+We've created a simple test tool for you:
+
+1. Double-click "test_outlook.bat"
+   OR run: python test_connection.py
+
+2. It will test your connection and tell you exactly what's wrong
+
+3. Follow the specific instructions it provides
+
+
+DIAGNOSTIC TOOL - For detailed analysis
+================================================================================
+
+For a complete system check:
+
+1. Double-click "diagnose.bat"
+   OR run: python diagnose_outlook.py
+
+2. It will check:
+   - Python installation
+   - pywin32 installation
+   - Outlook installation
+   - Outlook process running
+   - Administrator rights
+   - Actual COM connection
+
+3. Review the results and follow the recommendations
+
+
+STILL NOT WORKING? Try these additional steps:
+================================================================================
+
+STEP A: Restart Everything
+---------------------------
+1. Close Outlook completely
+2. Close the backup tool
+3. Restart your computer
+4. Start Outlook first
+5. Run backup tool
+
+STEP B: Reinstall pywin32
+---------------------------
+1. Open Command Prompt as Administrator
+2. Run: pip uninstall pywin32
+3. Run: pip install pywin32
+4. Restart computer
+5. Try again
+
+STEP C: Repair Office
+---------------------------
+1. Open Control Panel
+2. Go to "Programs and Features"
+3. Find "Microsoft Office" or "Microsoft 365"
+4. Click "Change"
+5. Select "Quick Repair" (or "Online Repair")
+6. Wait for completion
+7. Restart computer
+
+STEP D: Check Antivirus
+---------------------------
+1. Your antivirus might be blocking COM access
+2. Temporarily disable it
+3. Try the backup tool
+4. If it works, add Python to antivirus exclusions
+
+
+VERIFY YOUR SETUP:
+================================================================================
+
+Make sure you have:
+✓ Windows operating system
+✓ Microsoft Outlook installed (part of Microsoft Office)
+✓ Outlook configured with at least one email account
+✓ Python 3.7 or higher installed
+✓ pywin32 installed (pip install pywin32)
+
+
+WHAT'S HAPPENING (Technical explanation):
+================================================================================
+
+The error "Server execution failed" means Python cannot start or connect to
+the Outlook COM server. This usually happens because:
+
+1. Outlook is not running (most common)
+2. Outlook is starting but not fully loaded yet
+3. Windows security is blocking the COM connection
+4. Python doesn't have permission to access Outlook
+5. Outlook COM registration is corrupt
+
+
+FOR IMMEDIATE HELP:
+================================================================================
+
+Try these in order:
+
+1. test_outlook.bat         ← Quick connection test
+2. diagnose.bat             ← Full diagnostic check
+3. TROUBLESHOOTING.md       ← Complete troubleshooting guide
+
+One of these will identify your specific issue!
+
+
+LAST RESORT:
+================================================================================
+
+If NOTHING works:
+
+1. Make sure you're not on a corporate computer with strict IT policies
+   (Some companies block COM automation for security)
+
+2. Try on a different computer to see if it's system-specific
+
+3. Contact your IT department if on a work computer
+
+4. Check Windows Event Viewer for specific error details:
+   - Open Event Viewer
+   - Go to Windows Logs → Application
+   - Look for Outlook or COM errors
+
+
+ONCE IT'S WORKING:
+================================================================================
+
+To prevent future issues:
+- Always start Outlook BEFORE running the backup tool
+- Keep Outlook open (minimized is fine) during backups
+- Don't close Outlook while backup is running
+
+
+================================================================================
+  Questions? Run the diagnostic tools mentioned above!
+================================================================================

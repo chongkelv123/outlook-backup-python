@@ -1,0 +1,138 @@
+================================================================================
+  HOW TO BUILD THE EXECUTABLE (.exe)
+================================================================================
+
+Choose one of these methods:
+
+
+METHOD 1: AUTOMATED BUILD (Easiest - Recommended!)
+================================================================================
+
+Just double-click this file:
+
+  build_exe.bat
+
+Or run:
+
+  python build_exe.py
+
+That's it! Wait 3-5 minutes and your .exe will be ready.
+
+
+METHOD 2: SIMPLE ONE-LINE BUILD
+================================================================================
+
+Double-click:
+
+  build_simple.bat
+
+This runs a single PyInstaller command that does everything.
+
+
+METHOD 3: MANUAL BUILD (For advanced users)
+================================================================================
+
+Step 1: Install PyInstaller
+
+  pip install pyinstaller
+
+Step 2: Build
+
+  pyinstaller --name "OutlookBackupTool" --onefile --windowed --clean --add-data "config.json;." --hidden-import win32com --hidden-import win32com.client --hidden-import pythoncom --hidden-import pywintypes --hidden-import win32timezone --hidden-import tkcalendar --hidden-import babel.numbers main.py
+
+Step 3: Find your .exe
+
+  dist\OutlookBackupTool.exe
+
+
+WHERE IS MY EXECUTABLE?
+================================================================================
+
+After building, look here:
+
+  dist\OutlookBackupTool.exe          <- Your executable!
+
+If you used the automated build, you'll also get:
+
+  OutlookBackupTool_Portable\         <- Complete distribution package
+    ├── OutlookBackupTool.exe
+    ├── Documentation files
+    └── Diagnostic tools
+
+
+TESTING THE EXECUTABLE
+================================================================================
+
+1. Make sure Outlook is running
+
+2. Run the executable:
+
+   dist\OutlookBackupTool.exe
+
+3. Test:
+   - Click "Preview Count"
+   - Click "Start Backup"
+   - Verify everything works
+
+
+DISTRIBUTING THE EXECUTABLE
+================================================================================
+
+Option A: Share just the .exe
+
+  Share: dist\OutlookBackupTool.exe
+  Users need: Windows + Outlook installed
+
+Option B: Share the complete package (recommended)
+
+  1. Zip this folder: OutlookBackupTool_Portable\
+  2. Share the ZIP file
+  3. Users extract and run OutlookBackupTool.exe
+
+
+BUILD TROUBLESHOOTING
+================================================================================
+
+Problem: "PyInstaller not found"
+Solution: pip install pyinstaller
+
+Problem: "Module not found"
+Solution: pip install -r requirements.txt
+
+Problem: Build fails
+Solution: Delete these folders and try again:
+  - build\
+  - dist\
+  - __pycache__\
+  - OutlookBackupTool.spec
+
+Problem: Antivirus blocks the .exe
+Solution: This is normal! Add to antivirus exclusions.
+
+
+NEED MORE HELP?
+================================================================================
+
+Read the complete guide:
+
+  BUILD_EXE_GUIDE.md
+
+This has detailed instructions, troubleshooting, and advanced options.
+
+
+QUICK SUMMARY
+================================================================================
+
+Easiest way:
+  1. Double-click: build_exe.bat
+  2. Wait 3-5 minutes
+  3. Find executable: dist\OutlookBackupTool.exe
+  4. Test it!
+  5. Share it!
+
+Your .exe will be 25-40 MB and includes everything users need (except Outlook).
+
+
+================================================================================
+  Ready? Just run: build_exe.bat
+================================================================================

@@ -1,0 +1,182 @@
+Outlook Email Backup Tool - Project Structure
+=============================================
+
+outlook_backup_tool/
+│
+├── 📄 main.py                          # Main GUI application (entry point)
+│   ├── OutlookBackupApp class         # Main application class
+│   ├── GUI components (tkinter)        # All UI elements
+│   ├── Event handlers                  # Button clicks, filters, etc.
+│   └── Threading for background tasks  # Non-blocking backup process
+│
+├── 📄 outlook_connector.py             # Outlook COM automation module
+│   ├── OutlookConnector class         # Manages Outlook connection
+│   ├── connect()                       # Connect to Outlook application
+│   ├── get_default_folders()          # Retrieve standard folders
+│   ├── get_emails_from_folder()       # Get emails from specific folder
+│   └── get_all_folder_names()         # Browse all available folders
+│
+├── 📄 filter_engine.py                 # Email filtering logic
+│   ├── FilterEngine class             # Static methods for filtering
+│   ├── apply_filters()                # Apply multiple filters
+│   ├── _filter_by_date_range()        # Date-based filtering
+│   ├── _filter_by_sender()            # Sender-based filtering
+│   ├── _filter_by_subject()           # Subject keyword filtering
+│   └── get_filter_summary()           # Human-readable filter description
+│
+├── 📄 email_exporter.py                # Email export functionality
+│   ├── EmailExporter class            # Handles email export
+│   ├── export_email()                 # Export single email to file
+│   ├── _generate_filename()           # Create unique filename
+│   ├── _save_attachments()            # Save email attachments
+│   ├── get_summary()                  # Export statistics
+│   └── Error handling and logging     # Track export issues
+│
+├── 📄 requirements.txt                 # Python dependencies
+│   ├── pywin32>=305                   # Outlook COM automation
+│   └── tkcalendar>=1.6.1             # Date picker widget
+│
+├── 📄 config.json                      # User preferences (auto-generated)
+│   └── backup_location                # Last used backup location
+│
+├── 📄 README.md                        # Comprehensive documentation
+│   ├── Features overview
+│   ├── Installation instructions
+│   ├── Usage guide
+│   ├── Troubleshooting
+│   └── Technical details
+│
+├── 📄 QUICK_START.md                   # Quick start guide
+│   ├── 3-step getting started
+│   ├── Common use cases
+│   └── First-time tips
+│
+├── 🔧 install_dependencies.bat         # Windows installer script
+│   ├── Check Python installation
+│   ├── Upgrade pip
+│   └── Install requirements
+│
+├── 🔧 run_backup_tool.bat             # Windows launcher script
+│   ├── Check Python installation
+│   └── Run main.py
+│
+└── 📄 PROJECT_STRUCTURE.txt           # This file
+
+
+Data Flow
+=========
+
+1. User Input (GUI)
+   ↓
+2. Outlook Connection (outlook_connector.py)
+   ↓
+3. Email Retrieval (outlook_connector.py)
+   ↓
+4. Filter Application (filter_engine.py)
+   ↓
+5. Email Export (email_exporter.py)
+   ↓
+6. Progress Updates (main.py - GUI)
+   ↓
+7. Summary Report (email_exporter.py → main.py)
+
+
+Module Dependencies
+===================
+
+main.py
+  ├─→ outlook_connector.py
+  ├─→ filter_engine.py
+  └─→ email_exporter.py
+
+outlook_connector.py
+  └─→ win32com.client
+
+filter_engine.py
+  └─→ (no external dependencies)
+
+email_exporter.py
+  └─→ (no external dependencies)
+
+
+Key Features by Module
+======================
+
+main.py:
+  ✓ Complete GUI with filters and settings
+  ✓ Real-time progress tracking
+  ✓ Background threading
+  ✓ Configuration persistence
+  ✓ Error handling and user feedback
+
+outlook_connector.py:
+  ✓ Outlook COM automation
+  ✓ Folder navigation
+  ✓ Email retrieval
+  ✓ Connection management
+
+filter_engine.py:
+  ✓ Date range filtering
+  ✓ Sender filtering
+  ✓ Subject filtering
+  ✓ Multiple filter combination (AND logic)
+
+email_exporter.py:
+  ✓ Email export to .msg/.eml
+  ✓ Attachment saving
+  ✓ Date-based organization
+  ✓ Filename collision handling
+  ✓ Export statistics
+
+
+File Naming Convention
+======================
+
+Exported emails:
+  email_YYYYMMDD_HHMMSS_[subject].msg
+
+Example:
+  email_20260129_103045_Meeting_reminder.msg
+
+Attachment folders:
+  email_20260129_103045_Meeting_reminder_attachments/
+
+Organized structure:
+  BackupFolder/
+    2026/
+      01/
+        email_20260129_103045_Meeting_reminder.msg
+        email_20260129_103045_Meeting_reminder_attachments/
+
+
+Testing Checklist
+=================
+
+□ Install dependencies
+□ Run application
+□ Connect to Outlook
+□ Preview email count
+□ Backup small dataset (7 days)
+□ Verify exported files
+□ Test with attachments
+□ Test organized folder structure
+□ Test multiple filters
+□ Test different folders
+□ Verify progress tracking
+□ Check error handling
+
+
+Extension Ideas
+===============
+
+Future enhancements could include:
+- Search within email body content
+- Multiple sender filter support
+- Export to PST format
+- Email deduplication
+- Compression options
+- Scheduled automatic backups
+- Email preview before export
+- Import back to Outlook
+- HTML export option
+- Email statistics dashboard
