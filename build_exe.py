@@ -71,9 +71,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('config.json', '.'),
-    ],
+    datas=[],
     hiddenimports=[
         'win32com',
         'win32com.client',
@@ -82,6 +80,14 @@ a = Analysis(
         'win32timezone',
         'tkcalendar',
         'babel.numbers',
+        'tkinter',
+        'tkinter.ttk',
+        'datetime',
+        'threading',
+        'json',
+        're',
+        'os',
+        'subprocess',
     ],
     hookspath=[],
     hooksconfig={},
@@ -109,7 +115,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,  # No console window
+    console=False,  # No console window - GUI only
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -117,6 +123,7 @@ exe = EXE(
     entitlements_file=None,
     icon=None,  # Add icon='icon.ico' if you have an icon file
     version_file=None,
+    onefile=True,  # Create single file executable
 )
 '''
 
@@ -177,31 +184,12 @@ def create_distribution_package():
     # Copy documentation files
     docs_to_copy = [
         'README.md',
-        'QUICK_START.md',
-        'TROUBLESHOOTING.md',
-        'FIX_YOUR_ERROR.txt',
     ]
 
     for doc in docs_to_copy:
         if os.path.exists(doc):
             shutil.copy2(doc, dist_folder)
             print(f"  ✓ Copied {doc}")
-
-    # Copy diagnostic tools
-    tools_to_copy = [
-        'test_connection.py',
-        'test_outlook.bat',
-        'diagnose_outlook.py',
-        'diagnose.bat',
-    ]
-
-    tools_folder = os.path.join(dist_folder, "Diagnostic_Tools")
-    os.makedirs(tools_folder)
-
-    for tool in tools_to_copy:
-        if os.path.exists(tool):
-            shutil.copy2(tool, tools_folder)
-            print(f"  ✓ Copied {tool} to Diagnostic_Tools/")
 
     # Create README for distribution
     create_distribution_readme(dist_folder)
@@ -212,59 +200,99 @@ def create_distribution_package():
 
 def create_distribution_readme(dist_folder):
     """Create a README for the distribution package"""
-    readme_content = """# Outlook Email Backup Tool - Portable Edition
+    readme_content = """# Outlook Email Backup Tool - Portable Edition v1.1
 
-This is a standalone version that doesn't require Python installation.
+This is a SINGLE-FILE standalone executable that doesn't require Python installation.
+
+## ⚠️ IMPORTANT: Classic Outlook Required
+
+This tool ONLY works with **Classic Outlook (Desktop Version)**.
+NOT compatible with the new Outlook (web-based version).
+
+If you're using new Outlook, switch to Classic Outlook:
+1. Open Outlook
+2. Find the toggle switch in the top-right corner
+3. Turn OFF "Try the new Outlook"
+4. Outlook will restart in Classic mode
 
 ## Quick Start
 
-1. Make sure Microsoft Outlook is installed and running
+1. Make sure **Classic Outlook** is installed and running
 2. Double-click **OutlookBackupTool.exe** to start
 3. Select your backup location
 4. Configure filters (optional)
 5. Click "Start Backup"
 
-## Requirements
+## System Requirements
 
-- Windows 7/10/11
-- Microsoft Outlook installed (part of Microsoft Office)
+- Windows 7/10/11 (64-bit or 32-bit)
+- Microsoft Outlook Classic (Desktop version)
 - Outlook must be running with an active profile
+- No Python installation required!
+
+## Features
+
+- Export emails to .MSG format (Outlook native format)
+- Filter by date range, sender, or subject
+- Organize by sender email, subject, or date
+- Automatic attachment embedding
+- Preview email count before backup
+- Progress tracking and status logging
 
 ## First Time Setup
 
-1. **Start Outlook** manually first
-2. Wait until Outlook is fully loaded
+1. **Start Classic Outlook** manually first
+2. Wait until Outlook is fully loaded (inbox visible)
 3. Keep Outlook running
-4. Run OutlookBackupTool.exe
+4. Double-click OutlookBackupTool.exe
+5. Application will detect if Classic Outlook is available
 
 ## Troubleshooting
 
-If you encounter errors:
+### "Failed to connect to Outlook" or "Classic Outlook Required"
 
-1. Make sure Outlook is running
-2. Try running as Administrator (right-click → Run as administrator)
-3. Check the TROUBLESHOOTING.md file
-4. Run diagnostic tools in the Diagnostic_Tools folder
+**Solution:**
+- Check if you're using new Outlook → Switch to Classic Outlook
+- Make sure Classic Outlook is running
+- Try running as Administrator (right-click → Run as administrator)
+- See README.md for detailed troubleshooting
+
+### Antivirus Blocks the EXE
+
+**Solution:**
+- This is a false positive (common with PyInstaller executables)
+- Add OutlookBackupTool.exe to your antivirus exceptions
+- The application only reads local Outlook data, no network activity
 
 ## Files Included
 
-- **OutlookBackupTool.exe** - Main application
+- **OutlookBackupTool.exe** - Single-file application (no installation needed!)
 - **README.md** - Complete documentation
-- **QUICK_START.md** - Quick start guide
-- **TROUBLESHOOTING.md** - Troubleshooting guide
-- **FIX_YOUR_ERROR.txt** - Common error solutions
-- **Diagnostic_Tools/** - Connection test and diagnostic tools
+- **START_HERE.txt** - This file
 
 ## Support
 
-For detailed documentation, see README.md
-For quick start, see QUICK_START.md
-For problems, see TROUBLESHOOTING.md
+For complete documentation, see README.md
+For issues, check the troubleshooting section above
 
-## Version
+## Version Information
 
-Version: 1.1
-Build Date: 2026-01-29
+- Version: 1.1 (refinement-v1)
+- Build Date: 2026-01-29
+- Format: Single-file executable
+- Size: ~20-30 MB (includes all dependencies)
+
+## What's New in v1.1
+
+- Switched to .MSG format (preserves all Outlook metadata)
+- Added sender-based folder organization
+- Added subject-based folder organization
+- Fixed sender filter for Exchange emails
+- Added Classic Outlook detection and warnings
+- Improved GUI layout
+
+---
+© Kelvin Chong 2026
 """
 
     with open(os.path.join(dist_folder, "START_HERE.txt"), 'w') as f:
