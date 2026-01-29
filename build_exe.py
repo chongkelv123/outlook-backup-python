@@ -1,3 +1,4 @@
+﻿# -*- coding: utf-8 -*-
 """
 Build Script for Creating Executable
 Prepares and builds the Outlook Backup Tool as a standalone .exe
@@ -7,6 +8,17 @@ import os
 import sys
 import shutil
 import subprocess
+
+# Set console encoding to UTF-8 for Windows
+if sys.platform == 'win32':
+    try:
+        # Try to set console to UTF-8
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+    except:
+        # Fallback: if UTF-8 fails, just use default encoding
+        pass
 
 
 def print_header(text):
@@ -20,17 +32,17 @@ def check_pyinstaller():
     """Check if PyInstaller is installed"""
     try:
         import PyInstaller
-        print("✓ PyInstaller is installed")
+        print("[OK] PyInstaller is installed")
         return True
     except ImportError:
-        print("✗ PyInstaller is not installed")
+        print("[X] PyInstaller is not installed")
         print("\nInstalling PyInstaller...")
         try:
             subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
-            print("✓ PyInstaller installed successfully")
+            print("[OK] PyInstaller installed successfully")
             return True
         except Exception as e:
-            print(f"✗ Failed to install PyInstaller: {e}")
+            print(f"[X] Failed to install PyInstaller: {e}")
             return False
 
 
@@ -43,18 +55,18 @@ def clean_build_folders():
         if os.path.exists(folder):
             try:
                 shutil.rmtree(folder)
-                print(f"  ✓ Removed {folder}/")
+                print(f"  [OK] Removed {folder}/")
             except Exception as e:
-                print(f"  ⚠ Could not remove {folder}/: {e}")
+                print(f"  [\!] Could not remove {folder}/: {e}")
 
     # Remove .spec file if exists
     spec_file = "OutlookBackupTool.spec"
     if os.path.exists(spec_file):
         try:
             os.remove(spec_file)
-            print(f"  ✓ Removed {spec_file}")
+            print(f"  [OK] Removed {spec_file}")
         except Exception as e:
-            print(f"  ⚠ Could not remove {spec_file}: {e}")
+            print(f"  [\!] Could not remove {spec_file}: {e}")
 
     print()
 
@@ -130,7 +142,7 @@ exe = EXE(
     with open('OutlookBackupTool.spec', 'w') as f:
         f.write(spec_content)
 
-    print("✓ Spec file created\n")
+    print("[OK] Spec file created\n")
 
 
 def build_executable():
@@ -146,16 +158,16 @@ def build_executable():
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            print("✓ Build completed successfully!")
+            print("[OK] Build completed successfully!")
             return True
         else:
-            print("✗ Build failed!")
+            print("[X] Build failed!")
             print("\nError output:")
             print(result.stderr)
             return False
 
     except Exception as e:
-        print(f"✗ Build failed with exception: {e}")
+        print(f"[X] Build failed with exception: {e}")
         return False
 
 
@@ -176,9 +188,9 @@ def create_distribution_package():
     exe_source = os.path.join("dist", "OutlookBackupTool.exe")
     if os.path.exists(exe_source):
         shutil.copy2(exe_source, dist_folder)
-        print(f"  ✓ Copied OutlookBackupTool.exe")
+        print(f"  [OK] Copied OutlookBackupTool.exe")
     else:
-        print(f"  ✗ Executable not found at {exe_source}")
+        print(f"  [X] Executable not found at {exe_source}")
         return False
 
     # Copy documentation files
@@ -189,12 +201,12 @@ def create_distribution_package():
     for doc in docs_to_copy:
         if os.path.exists(doc):
             shutil.copy2(doc, dist_folder)
-            print(f"  ✓ Copied {doc}")
+            print(f"  [OK] Copied {doc}")
 
     # Create README for distribution
     create_distribution_readme(dist_folder)
 
-    print(f"\n✓ Distribution package created: {dist_folder}/")
+    print(f"\n[OK] Distribution package created: {dist_folder}/")
     return True
 
 
@@ -204,7 +216,7 @@ def create_distribution_readme(dist_folder):
 
 This is a SINGLE-FILE standalone executable that doesn't require Python installation.
 
-## ⚠️ IMPORTANT: Classic Outlook Required
+## [\!] IMPORTANT: Classic Outlook Required
 
 This tool ONLY works with **Classic Outlook (Desktop Version)**.
 NOT compatible with the new Outlook (web-based version).
@@ -295,10 +307,10 @@ For issues, check the troubleshooting section above
 © Kelvin Chong 2026
 """
 
-    with open(os.path.join(dist_folder, "START_HERE.txt"), 'w') as f:
+    with open(os.path.join(dist_folder, "START_HERE.txt"), 'w', encoding='utf-8') as f:
         f.write(readme_content)
 
-    print("  ✓ Created START_HERE.txt")
+    print("  [OK] Created START_HERE.txt")
 
 
 def get_exe_size():
@@ -353,7 +365,7 @@ def main():
     exe_size = get_exe_size()
 
     print(f"""
-✓ Executable created successfully!
+[OK] Executable created successfully!
 
 File: dist/OutlookBackupTool.exe
 Size: {exe_size}
